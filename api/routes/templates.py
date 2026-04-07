@@ -1,9 +1,14 @@
+<<<<<<< Updated upstream
 from datetime import datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 from sqlmodel import Session
+=======
+from fastapi import APIRouter, Depends
+from sqlmodel import Session, select
+>>>>>>> Stashed changes
 from api.deps import get_db
 from api.schemas.templates import (
     TemplateCreate,
@@ -12,6 +17,7 @@ from api.schemas.templates import (
 )
 from api.db.repositories import create_template, list_templates
 from api.db.models import Template
+from api.errors.base import AppError
 from src.controller import Controller
 
 router = APIRouter(prefix="/templates", tags=["templates"])
@@ -101,9 +107,39 @@ def preview_template_pdf(path: str = Query(..., description="Project-relative PD
     return FileResponse(resolved_path, media_type="application/pdf", filename=resolved_path.name)
 
 
+
 @router.post("/create", response_model=TemplateResponse)
 def create(template: TemplateCreate, db: Session = Depends(get_db)):
     controller = Controller()
     template_path = controller.create_template(template.pdf_path)
     tpl = Template(**template.model_dump(exclude={"pdf_path"}), pdf_path=template_path)
     return create_template(db, tpl)
+<<<<<<< Updated upstream
+=======
+
+
+@router.get("/", response_model=list[TemplateResponse])
+def list_templates(db: Session = Depends(get_db)):
+    """List all registered templates."""
+    return db.exec(select(Template)).all()
+
+
+@router.get("/{template_id}", response_model=TemplateResponse)
+def get_template_by_id(template_id: int, db: Session = Depends(get_db)):
+    """Retrieve a single template by ID."""
+    template = db.get(Template, template_id)
+    if not template:
+        raise AppError("Template not found", status_code=404)
+    return template
+
+
+@router.delete("/{template_id}")
+def delete_template(template_id: int, db: Session = Depends(get_db)):
+    """Delete a template by ID."""
+    template = db.get(Template, template_id)
+    if not template:
+        raise AppError("Template not found", status_code=404)
+    db.delete(template)
+    db.commit()
+    return {"success": True, "message": f"Template {template_id} deleted"}
+>>>>>>> Stashed changes

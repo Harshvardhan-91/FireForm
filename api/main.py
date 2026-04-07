@@ -1,11 +1,23 @@
 import os
 
 from fastapi import FastAPI
+<<<<<<< Updated upstream
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes import forms, templates
+=======
+from api.routes import templates, forms
+from api.errors.handlers import register_exception_handlers
+>>>>>>> Stashed changes
 
-app = FastAPI()
+app = FastAPI(
+    title="FireForm API",
+    description="Report Once, File Everywhere — AI-powered form filling for first responders",
+    version="0.1.0",
+)
+
+# Register custom exception handlers
+register_exception_handlers(app)
 
 default_origins = "http://127.0.0.1:5173"
 allowed_origins = [
