@@ -1,14 +1,9 @@
-<<<<<<< Updated upstream
 from datetime import datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
-from sqlmodel import Session
-=======
-from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
->>>>>>> Stashed changes
 from api.deps import get_db
 from api.schemas.templates import (
     TemplateCreate,
@@ -114,14 +109,6 @@ def create(template: TemplateCreate, db: Session = Depends(get_db)):
     template_path = controller.create_template(template.pdf_path)
     tpl = Template(**template.model_dump(exclude={"pdf_path"}), pdf_path=template_path)
     return create_template(db, tpl)
-<<<<<<< Updated upstream
-=======
-
-
-@router.get("/", response_model=list[TemplateResponse])
-def list_templates(db: Session = Depends(get_db)):
-    """List all registered templates."""
-    return db.exec(select(Template)).all()
 
 
 @router.get("/{template_id}", response_model=TemplateResponse)
@@ -142,4 +129,3 @@ def delete_template(template_id: int, db: Session = Depends(get_db)):
     db.delete(template)
     db.commit()
     return {"success": True, "message": f"Template {template_id} deleted"}
->>>>>>> Stashed changes
